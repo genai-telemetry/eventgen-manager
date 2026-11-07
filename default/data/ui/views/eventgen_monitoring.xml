@@ -1,0 +1,308 @@
+<form hideEdit="true" version="1.1">
+  <label>Throughput</label>
+  <description>What the built-in engine is producing, from the metrics it writes every 30 seconds to eventgen_manager_engine.log. Every line names its configuration, so the Sample selector filters each panel exactly. The last row checks the other side: how many events actually reached an index.</description>
+
+  <fieldset submitButton="false" autoRun="true">
+    <input type="time" token="range" searchWhenChanged="true">
+      <label>Time range</label>
+      <default>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="sample" searchWhenChanged="true">
+      <label>Configuration</label>
+      <choice value="*">All configurations</choice>
+      <default>*</default>
+      <fieldForLabel>label</fieldForLabel>
+      <fieldForValue>title</fieldForValue>
+      <search>
+        <query>
+          | rest /servicesNS/-/-/configs/conf-eventgen splunk_server=local
+          | search title!="default" title!="global"
+          | eval label=title." (".'eai:acl.app'.")"
+          | dedup title
+          | table title label
+          | sort title
+        </query>
+      </search>
+    </input>
+  </fieldset>
+
+  <!-- One search feeds the headline numbers and both time charts. -->
+  <search id="metrics">
+    <query>
+      index=_internal source=*eventgen_manager_engine.log* event=metrics
+      stanza=$sample|s$
+      | timechart span=1m sum(events) AS events sum(bytes) AS bytes
+        sum(errors) AS errors
+      | fillnull value=0 events bytes errors
+    </query>
+    <earliest>$range.earliest$</earliest>
+    <latest>$range.latest$</latest>
+  </search>
+
+  <row>
+    <panel>
+      <single>
+        <title>Events per second</title>
+        <search base="metrics">
+          <query>
+            | stats avg(events) AS per_minute
+            | eval eps=round(per_minute/60, 2)
+            | fields eps
+          </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x555a5f","0x118832"]</option>
+        <option name="rangeValues">[0]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Events generated</title>
+        <search base="metrics">
+          <query>| stats sum(events) AS total | fields total</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Projected volume per day</title>
+        <search base="metrics">
+          <query>
+            | stats avg(bytes) AS per_minute
+            | eval gbpd=round(per_minute*1440/1073741824, 2)
+            | fields gbpd
+          </query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="unit">GB</option>
+        <option name="numberPrecision">0.00</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Failed batches</title>
+        <search base="metrics">
+          <query>| stats sum(errors) AS failed | fields failed</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x118832","0xb76d10","0xa41d0f"]</option>
+        <option name="rangeValues">[0,10]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <chart>
+        <title>Events per second over time</title>
+        <search base="metrics">
+          <query>
+            | eval events_per_second=round(events/60, 2)
+            | fields _time events_per_second
+          </query>
+        </search>
+        <option name="charting.axisTitleY.text">Events/second</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Data volume per second</title>
+        <search base="metrics">
+          <query>
+            | eval megabytes_per_second=round(bytes/1048576/60, 4)
+            | fields _time megabytes_per_second
+          </query>
+        </search>
+        <option name="charting.axisTitleY.text">MB/second</option>
+        <option name="charting.chart">area</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <chart>
+        <title>Events per minute, by configuration</title>
+        <search>
+          <query>
+            index=_internal source=*eventgen_manager_engine.log* event=metrics
+            stanza=$sample|s$
+            | timechart span=1m limit=0 sum(events) BY stanza
+          </query>
+          <earliest>$range.earliest$</earliest>
+          <latest>$range.latest$</latest>
+        </search>
+        <option name="charting.axisTitleY.text">Events per minute</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!--
+    Configured against measured. The configured side reads eventgen.conf as
+    it stands now, so an edit is visible here at once; the measured side is
+    the engine's own count for the same app and stanza.
+  -->
+  <row>
+    <panel>
+      <title>Configured rate against measured rate</title>
+      <table>
+        <search>
+          <query>
+            | rest /servicesNS/-/-/configs/conf-eventgen splunk_server=local
+            | search title!="default" title!="global" title=$sample|s$
+            | eval app='eai:acl.app'
+            | eval every=if(isnull(interval) OR interval="", 60, interval)
+            | eval per_run=if(isnull(count) OR count="", 0, count)
+            | eval configured_per_second=if(per_run>0 AND every>0,
+                round(per_run/every, 2), null())
+            | eval state=if(match(lower(disabled), "^(1|true|yes)$"),
+                "Paused", "Started")
+            | eval output=coalesce(outputMode, "modinput")
+            | table app title state output per_run every configured_per_second
+            | join type=left app title
+              [ search index=_internal source=*eventgen_manager_engine.log*
+                  event=metrics
+                | rename stanza AS title
+                | stats sum(events) AS events sum(errors) AS errors
+                  BY app title
+                | addinfo
+                | eval measured_per_second=round(events /
+                    (info_max_time - info_min_time), 2)
+                | fields app title measured_per_second errors ]
+            | fillnull value=0 measured_per_second errors
+            | sort title
+            | rename title AS "Configuration", app AS "App",
+              state AS "Status", output AS "Output", per_run AS "Count",
+              every AS "Interval (s)",
+              configured_per_second AS "Configured events/s",
+              measured_per_second AS "Measured events/s",
+              errors AS "Failed batches"
+          </query>
+          <earliest>$range.earliest$</earliest>
+          <latest>$range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">20</option>
+        <format type="color" field="Failed batches">
+          <colorPalette type="list">[#FFFFFF,#F8D7D3]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <chart>
+        <title>Engine log messages by level</title>
+        <search>
+          <query>
+            index=_internal source=*eventgen_manager_engine.log*
+            event!=metrics
+            | eval stanza=coalesce(stanza, "engine")
+            | search stanza=$sample|s$ OR stanza="engine"
+            | timechart span=5m count BY level
+          </query>
+          <earliest>$range.earliest$</earliest>
+          <latest>$range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Runs that fell behind schedule</title>
+        <search>
+          <query>
+            index=_internal source=*eventgen_manager_engine.log*
+            event=behind_schedule stanza=$sample|s$
+            | timechart span=5m count BY stanza
+          </query>
+          <earliest>$range.earliest$</earliest>
+          <latest>$range.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Warnings and errors</title>
+      <table>
+        <search>
+          <query>
+            index=_internal source=*eventgen_manager_engine.log*
+            level IN (WARNING, ERROR, CRITICAL)
+            | eval stanza=coalesce(stanza, "engine")
+            | search stanza=$sample|s$ OR stanza="engine"
+            | table _time level stanza app event msg
+            | rename _time AS "Time", level AS "Level",
+              stanza AS "Configuration", app AS "App", event AS "Event",
+              msg AS "Message"
+          </query>
+          <earliest>$range.earliest$</earliest>
+          <latest>$range.latest$</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="count">25</option>
+        <format type="color" field="Level">
+          <colorPalette type="map">
+            {"CRITICAL":#A41D0F,"ERROR":#A41D0F,"WARNING":#B76D10}
+          </colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+
+  <!--
+    Generated is not the same as indexed: a wrong index name, a HEC token,
+    or a props.conf rule can drop events after the engine has sent them.
+    This row counts what landed, keyed on each configuration's source.
+  -->
+  <row>
+    <panel>
+      <chart>
+        <title>Events that reached an index, by source</title>
+        <search>
+          <query>
+            index=*
+            [ | rest /servicesNS/-/-/configs/conf-eventgen splunk_server=local
+              | search title!="default" title!="global" title=$sample|s$
+              | eval source=if(isnull(source) OR source="", title, source)
+              | fields source
+              | format ]
+            | timechart span=1m limit=0 count BY source
+          </query>
+          <earliest>$range.earliest$</earliest>
+          <latest>$range.latest$</latest>
+        </search>
+        <option name="charting.axisTitleY.text">Events per minute</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+</form>

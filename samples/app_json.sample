@@ -1,0 +1,8 @@
+{"timestamp":"2026-03-08T11:04:12.418Z","level":"INFO","service":"checkout-api","trace_id":"4b1f9c2e8a7d4e11","user":"jharris","event":"order.created","order_id":"ORD-100482","amount_usd":128.40,"latency_ms":86,"host":"web01"}
+{"timestamp":"2026-03-08T11:04:13.902Z","level":"WARN","service":"payments","trace_id":"9de3a17c40b2f885","user":"mchen","event":"payment.retry","order_id":"ORD-100483","attempt":2,"latency_ms":1420,"host":"app03"}
+{"timestamp":"2026-03-08T11:04:15.117Z","level":"ERROR","service":"inventory","trace_id":"c72b0ee59a134dd6","user":"rsingh","event":"stock.reserve.failed","sku":"LMP-2201","reason":"insufficient_stock","latency_ms":42,"host":"app03"}
+{"timestamp":"2026-03-08T11:04:16.550Z","level":"INFO","service":"checkout-api","trace_id":"2a55f8d1cb904e73","user":"kdavies","event":"cart.updated","order_id":"ORD-100484","amount_usd":54.99,"latency_ms":31,"host":"web01"}
+{"timestamp":"2026-03-08T11:04:18.004Z","level":"INFO","service":"auth","trace_id":"81ff6b03e4a24c19","user":"jharris","event":"session.refresh","latency_ms":12,"host":"web02"}
+{"timestamp":"2026-03-08T11:04:19.771Z","level":"ERROR","service":"payments","trace_id":"5c9d02af73e14b60","user":"mchen","event":"payment.declined","order_id":"ORD-100483","reason":"insufficient_funds","latency_ms":903,"host":"app03"}
+{"timestamp":"2026-03-08T11:04:21.336Z","level":"DEBUG","service":"inventory","trace_id":"e40a7c6b19f84d22","user":"rsingh","event":"cache.miss","sku":"DSK-8890","latency_ms":7,"host":"app04"}
+{"timestamp":"2026-03-08T11:04:23.089Z","level":"INFO","service":"checkout-api","trace_id":"7bb1e5029c4a4f38","user":"kdavies","event":"order.shipped","order_id":"ORD-100480","latency_ms":58,"host":"web02"}

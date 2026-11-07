@@ -1,0 +1,670 @@
+/*
+ * Eventgen Manager
+ *
+ * Everything is namespaced under .egm- so it cannot leak into Splunk's own
+ * chrome. Colours follow the Splunk Enterprise palette, with one deliberate
+ * exception: the preview pane, which is dark and monospaced so that generated
+ * events read as machine output rather than as form content.
+ */
+
+.egm {
+  --egm-bg: #f2f4f5;
+  --egm-panel: #ffffff;
+  --egm-border: #c3cbd4;
+  --egm-border-soft: #e1e6eb;
+  --egm-text: #3c444d;
+  --egm-muted: #6b7785;
+  --egm-accent: #0c6b93;
+  --egm-accent-weak: #e8f2f7;
+  --egm-ok: #118832;
+  --egm-warn: #b76d10;
+  --egm-warn-weak: #fdf3e3;
+  --egm-error: #a41d0f;
+  --egm-error-weak: #fbeceb;
+
+  /* Preview pane */
+  --egm-term-bg: #16191d;
+  --egm-term-text: #cfd7e0;
+  --egm-term-dim: #6d7885;
+  --egm-term-token: #f8be34;
+  --egm-term-rule: #2b3038;
+
+  --egm-radius: 3px;
+  --egm-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+
+  color: var(--egm-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.egm *,
+.egm *::before,
+.egm *::after { box-sizing: border-box; }
+
+/* ---------------------------------------------------------------- layout */
+
+.egm-page { display: block; }
+
+.egm-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 0 0 14px;
+  border-bottom: 1px solid var(--egm-border-soft);
+  margin-bottom: 16px;
+}
+
+.egm-bar-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.egm-bar-spacer { flex: 1 1 auto; }
+
+.egm-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.egm-panel {
+  background: var(--egm-panel);
+  border: 1px solid var(--egm-border);
+  border-radius: var(--egm-radius);
+}
+
+.egm-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--egm-border-soft);
+}
+
+.egm-panel-head h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.egm-panel-body { padding: 14px; }
+.egm-panel-body.egm-flush { padding: 0; }
+
+/* ----------------------------------------------------------------- type */
+
+.egm-hint {
+  color: var(--egm-muted);
+  font-size: 12px;
+  margin: 4px 0 0;
+}
+
+.egm-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--egm-muted);
+}
+
+.egm-mono { font-family: var(--egm-mono); }
+
+/* -------------------------------------------------------------- controls */
+
+.egm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-weight: 500;
+  padding: 5px 12px;
+  border: 1px solid var(--egm-border);
+  border-radius: var(--egm-radius);
+  background: #fff;
+  color: var(--egm-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.egm-btn:hover { background: #f5f7f8; }
+.egm-btn:focus-visible { outline: 2px solid var(--egm-accent); outline-offset: 1px; }
+.egm-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+.egm-btn-primary {
+  background: var(--egm-accent);
+  border-color: var(--egm-accent);
+  color: #fff;
+}
+.egm-btn-primary:hover { background: #0a5a7c; }
+
+.egm-btn-danger { color: var(--egm-error); border-color: #d9b3ae; }
+.egm-btn-danger:hover { background: var(--egm-error-weak); }
+
+.egm-btn-sm { padding: 2px 8px; font-size: 12px; }
+
+.egm-field { margin-bottom: 14px; }
+.egm-field:last-child { margin-bottom: 0; }
+
+.egm-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.egm-label code {
+  font-family: var(--egm-mono);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--egm-muted);
+  background: none;
+  padding: 0 0 0 6px;
+  border: 0;
+}
+
+.egm-input,
+.egm-select,
+.egm-textarea {
+  width: 100%;
+  font: inherit;
+  padding: 5px 8px;
+  border: 1px solid var(--egm-border);
+  border-radius: var(--egm-radius);
+  background: #fff;
+  color: var(--egm-text);
+}
+
+.egm-textarea {
+  font-family: var(--egm-mono);
+  font-size: 12px;
+  min-height: 72px;
+  resize: vertical;
+}
+
+.egm-input:focus,
+.egm-select:focus,
+.egm-textarea:focus {
+  outline: none;
+  border-color: var(--egm-accent);
+  box-shadow: 0 0 0 2px var(--egm-accent-weak);
+}
+
+.egm-input.egm-invalid,
+.egm-textarea.egm-invalid { border-color: var(--egm-error); }
+
+.egm-field-error {
+  color: var(--egm-error);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.egm-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0 14px;
+}
+
+.egm-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.egm-check input { margin: 0; }
+
+/* ------------------------------------------------------------------ tabs */
+
+.egm-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--egm-border);
+  overflow-x: auto;
+}
+
+.egm-tab {
+  font: inherit;
+  font-weight: 500;
+  padding: 8px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--egm-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.egm-tab:hover { color: var(--egm-text); }
+
+.egm-tab[aria-selected="true"] {
+  color: var(--egm-accent);
+  border-bottom-color: var(--egm-accent);
+}
+
+.egm-tab-count {
+  font-size: 11px;
+  background: var(--egm-border-soft);
+  border-radius: 8px;
+  padding: 0 6px;
+  margin-left: 6px;
+}
+
+.egm-tabpanel { padding: 16px 2px 2px; }
+
+/* ----------------------------------------------------------------- table */
+
+.egm-table { width: 100%; border-collapse: collapse; }
+
+.egm-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--egm-muted);
+  font-weight: 700;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--egm-border);
+  white-space: nowrap;
+}
+
+.egm-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--egm-border-soft);
+  vertical-align: middle;
+}
+
+.egm-table tbody tr:hover { background: #f7f9fa; }
+.egm-table tbody tr:last-child td { border-bottom: 0; }
+
+.egm-name { font-weight: 600; }
+.egm-name-sub { color: var(--egm-muted); font-size: 12px; font-weight: 400; }
+
+.egm-actions { text-align: right; white-space: nowrap; }
+.egm-actions .egm-btn { margin-left: 4px; }
+
+/* ----------------------------------------------------------------- pills */
+
+.egm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.egm-pill-on { background: #e6f4ea; color: var(--egm-ok); border-color: #b6ddc1; }
+.egm-pill-off { background: #eef1f3; color: var(--egm-muted); border-color: var(--egm-border); }
+.egm-pill-warn { background: var(--egm-warn-weak); color: var(--egm-warn); border-color: #e5c48d; }
+.egm-pill-locked { background: #f0eef5; color: #5b4b8a; border-color: #cdc4e0; }
+
+.egm-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+/* --------------------------------------------------------------- messages */
+
+.egm-note {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--egm-border);
+  border-left-width: 3px;
+  border-radius: var(--egm-radius);
+  margin-bottom: 12px;
+}
+
+.egm-note-warn { background: var(--egm-warn-weak); border-left-color: var(--egm-warn); }
+.egm-note-error { background: var(--egm-error-weak); border-left-color: var(--egm-error); }
+.egm-note-info { background: var(--egm-accent-weak); border-left-color: var(--egm-accent); }
+.egm-note-ok { background: #e6f4ea; border-left-color: var(--egm-ok); }
+
+.egm-note ul { margin: 4px 0 0; padding-left: 18px; }
+.egm-note p { margin: 0; }
+
+.egm-empty {
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--egm-muted);
+}
+
+.egm-empty h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  color: var(--egm-text);
+}
+
+.egm-empty p { margin: 0 auto 16px; max-width: 46ch; }
+
+/* ------------------------------------------------------------ health list */
+
+.egm-checks { list-style: none; margin: 0; padding: 0; }
+
+.egm-checks li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--egm-border-soft);
+}
+
+.egm-checks li:last-child { border-bottom: 0; }
+
+.egm-check-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-top: 2px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.egm-check-icon.ok { background: var(--egm-ok); }
+.egm-check-icon.bad { background: var(--egm-warn); }
+
+.egm-check-text strong { display: block; }
+.egm-check-text span { color: var(--egm-muted); font-size: 12px; }
+
+/* ---------------------------------------------------------- token editor */
+
+.egm-token {
+  border: 1px solid var(--egm-border);
+  border-radius: var(--egm-radius);
+  margin-bottom: 10px;
+  background: #fbfcfd;
+}
+
+.egm-token-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--egm-border-soft);
+}
+
+/* The index is part of the config key (token.0, token.1 ...), so the number
+   is data, not decoration. */
+.egm-token-index {
+  font-family: var(--egm-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--egm-accent);
+  background: var(--egm-accent-weak);
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+
+.egm-token-body { padding: 12px; }
+
+.egm-token-body .egm-row {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.9fr) minmax(0, 1.4fr);
+}
+
+@media (max-width: 900px) {
+  .egm-token-body .egm-row { grid-template-columns: 1fr; }
+}
+
+/* ------------------------------------------------------- preview terminal */
+
+.egm-term {
+  background: var(--egm-term-bg);
+  border-radius: var(--egm-radius);
+  overflow: hidden;
+}
+
+.egm-term-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--egm-term-rule);
+  color: var(--egm-term-dim);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.egm-term-body {
+  font-family: var(--egm-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--egm-term-text);
+  max-height: 460px;
+  overflow: auto;
+  padding: 6px 0;
+}
+
+.egm-term-line {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 10px;
+  padding: 3px 12px;
+}
+
+.egm-term-line:hover { background: rgba(255, 255, 255, 0.035); }
+
+.egm-term-no {
+  color: var(--egm-term-dim);
+  text-align: right;
+  user-select: none;
+}
+
+.egm-term-raw { white-space: pre-wrap; word-break: break-word; }
+
+.egm-term-time {
+  display: block;
+  color: var(--egm-term-dim);
+  font-size: 11px;
+}
+
+/* The one place colour is spent freely: substituted values. */
+.egm-sub {
+  color: var(--egm-term-token);
+  background: rgba(248, 190, 52, 0.12);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.egm-term-empty {
+  padding: 34px 16px;
+  text-align: center;
+  color: var(--egm-term-dim);
+  font-family: var(--egm-mono);
+  font-size: 12px;
+}
+
+.egm-term-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--egm-term-rule);
+  color: var(--egm-term-dim);
+  font-size: 11px;
+  font-family: var(--egm-mono);
+}
+
+.egm-term-foot b { color: var(--egm-term-text); font-weight: 600; }
+
+.egm-fade { animation: egm-fade 160ms ease-out; }
+
+@keyframes egm-fade {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+
+/* --------------------------------------------------------------- summary */
+
+.egm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px;
+  background: var(--egm-border-soft);
+  border: 1px solid var(--egm-border-soft);
+  border-radius: var(--egm-radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.egm-stat { background: var(--egm-panel); padding: 10px 12px; }
+.egm-stat b { display: block; font-size: 18px; font-weight: 600; line-height: 1.2; }
+.egm-stat span { color: var(--egm-muted); font-size: 11px; }
+
+/* ---------------------------------------------------------------- drawer */
+
+.egm-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 32, 36, 0.45);
+  z-index: 1000;
+}
+
+.egm-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  margin: 3vh auto;
+  width: min(1240px, 94vw);
+  background: var(--egm-bg);
+  border-radius: 4px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.egm-drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--egm-panel);
+  border-bottom: 1px solid var(--egm-border);
+}
+
+.egm-drawer-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.egm-drawer-body { flex: 1 1 auto; overflow: auto; padding: 16px 18px; }
+
+.egm-drawer-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  background: var(--egm-panel);
+  border-top: 1px solid var(--egm-border);
+}
+
+.egm-close {
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  border: 0;
+  background: none;
+  color: var(--egm-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.egm-close:hover { color: var(--egm-text); }
+
+/* --------------------------------------------------------------- utility */
+
+.egm-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--egm-border);
+  border-top-color: var(--egm-accent);
+  border-radius: 50%;
+  display: inline-block;
+  animation: egm-spin 700ms linear infinite;
+}
+
+@keyframes egm-spin { to { transform: rotate(360deg); } }
+
+.egm-toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1100;
+  max-width: 380px;
+  padding: 10px 14px;
+  border-radius: var(--egm-radius);
+  background: #22282e;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  animation: egm-rise 160ms ease-out;
+}
+
+.egm-toast-error { background: var(--egm-error); }
+.egm-toast-ok { background: #14682a; }
+
+@keyframes egm-rise {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.egm-inline-code {
+  font-family: var(--egm-mono);
+  font-size: 11px;
+  background: #eef1f3;
+  border: 1px solid var(--egm-border-soft);
+  border-radius: 2px;
+  padding: 0 4px;
+}
+
+.egm-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 1080px) {
+  .egm-split { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .egm-fade,
+  .egm-toast,
+  .egm-spinner { animation: none; }
+}
+
+/* Flatten the Simple XML panel that wraps the app so our own panels are not
+   nested inside a second bordered box. */
+.egm-host,
+.egm-host .panel-body,
+.egm-host .dashboard-element {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* -- 2.0: live engine state ----------------------------------------- */
+
+.egm-pill-bad { background: var(--egm-error-weak); color: var(--egm-error); border-color: #e3b4ae; }
+.egm-live { font-size: 11px; color: var(--egm-muted); margin-top: 3px; }
+.egm-live-error { font-size: 11px; color: var(--egm-error); margin-top: 3px; max-width: 320px; overflow-wrap: anywhere; }
+.egm-test-result { margin-top: 12px; }
+.egm-test-result pre { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--egm-mono); font-size: 11px; margin: 6px 0 0; }
+.egm-kv { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0 0 14px; font-size: 12px; }
+.egm-kv dt { color: var(--egm-muted); }
+.egm-kv dd { margin: 0; }

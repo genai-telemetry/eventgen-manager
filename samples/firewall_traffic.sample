@@ -1,0 +1,8 @@
+Mar 08 2026 11:04:12: %FW-6-BUILT: Built inbound TCP connection 88213 for outside:203.0.113.14/52344 to inside:192.0.2.10/443 action=allow bytes=8842 rule=web-inbound
+Mar 08 2026 11:04:13: %FW-4-DENY: Deny inbound TCP from outside:198.51.100.72/41022 to inside:192.0.2.11/22 action=block bytes=0 rule=ssh-lockdown
+Mar 08 2026 11:04:15: %FW-6-BUILT: Built outbound TCP connection 88214 for inside:192.0.2.10/49188 to outside:203.0.113.201/443 action=allow bytes=124093 rule=egress-default
+Mar 08 2026 11:04:17: %FW-4-DENY: Deny inbound UDP from outside:192.0.2.201/53 to inside:192.0.2.12/53 action=block bytes=0 rule=dns-external
+Mar 08 2026 11:04:19: %FW-6-TEARDOWN: Teardown TCP connection 88213 for outside:203.0.113.14/52344 duration=0:00:07 bytes=48211 rule=web-inbound
+Mar 08 2026 11:04:21: %FW-4-DENY: Deny inbound TCP from outside:203.0.113.98/60112 to inside:192.0.2.11/3389 action=block bytes=0 rule=rdp-lockdown
+Mar 08 2026 11:04:23: %FW-6-BUILT: Built outbound TCP connection 88215 for inside:192.0.2.14/51002 to outside:198.51.100.5/8443 action=allow bytes=3391 rule=egress-default
+Mar 08 2026 11:04:25: %FW-4-DENY: Deny inbound TCP from outside:198.51.100.144/44012 to inside:192.0.2.10/8080 action=block bytes=0 rule=web-inbound

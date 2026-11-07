@@ -1,0 +1,16 @@
+<dashboard script="eventgen_app.js" stylesheet="app.css" hideEdit="true" hideExport="true" version="1.1">
+  <label>Sample data</label>
+  <description>The raw events every configuration generates from. Upload a file, or write a few lines by hand.</description>
+  <row>
+    <panel>
+      <html>
+        <div id="egm-root">
+          <noscript>
+            This page needs JavaScript. Sample files can also be copied
+            directly into the app's samples folder.
+          </noscript>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

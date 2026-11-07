@@ -1,0 +1,16 @@
+<dashboard script="eventgen_app.js" stylesheet="app.css" hideEdit="true" hideExport="true" version="1.1">
+  <label>Configurations</label>
+  <description>Pair a sample file with a schedule and a set of token replacements. Preview the result before anything reaches an index.</description>
+  <row>
+    <panel>
+      <html>
+        <div id="egm-root">
+          <noscript>
+            This page needs JavaScript. Eventgen stanzas can also be edited
+            directly in eventgen.conf.
+          </noscript>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

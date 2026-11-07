@@ -1,0 +1,54 @@
+<dashboard stylesheet="app.css" hideEdit="true" hideExport="true" version="1.1">
+  <label>Tutorial</label>
+  <description>A complete, step-by-step guide to Eventgen Manager, from your first starter configuration to building your own data, monitoring throughput, and troubleshooting.</description>
+  <row>
+    <panel>
+      <html>
+        <div class="egm">
+        <div class="egm-panel">
+          <div class="egm-panel-head"><h3>Eventgen Manager tutorial (PDF)</h3></div>
+          <div class="egm-panel-body">
+            <p>The tutorial walks through every page of the app with screenshots.
+              It opens on GitHub in a new browser tab, where you can read or download it.</p>
+            <p>
+              <a class="egm-btn egm-btn-primary" style="text-decoration:none" target="_blank" rel="noopener"
+                 href="https://github.com/genai-telemetry/eventgen-manager/blob/main/Eventgen_Manager_Tutorial.pdf">Open the tutorial</a>
+            </p>
+          </div>
+        </div>
+        <div class="egm-panel" style="margin-top:16px">
+          <div class="egm-panel-head"><h3>What it covers</h3></div>
+          <div class="egm-panel-body">
+            <ol>
+              <li>What Eventgen Manager does, and what ships with it</li>
+              <li>Installing the app and checking the engine is ready</li>
+              <li>A tour of the Configurations page and its status values</li>
+              <li>Starting a starter configuration in one click</li>
+              <li>The configuration editor, tab by tab: Sample, Basics (including automatic timestamps), Volume and timing, Rate, Output, Tokens, Review, and Send test events</li>
+              <li>Sending data to your indexers through the forwarder's outputs.conf</li>
+              <li>Building your own data from a new sample file</li>
+              <li>Cloning, pausing, editing, and deleting configurations</li>
+              <li>Monitoring throughput and controlling the engine</li>
+              <li>Reading warning signs, troubleshooting, and reference material</li>
+            </ol>
+          </div>
+        </div>
+        <div class="egm-panel" style="margin-top:16px">
+          <div class="egm-panel-head"><h3>Quick start</h3></div>
+          <div class="egm-panel-body">
+            <ol>
+              <li>Open <b>Generator control</b> and check every item is green.</li>
+              <li>On <b>Configurations</b>, press <b>Start</b> on a starter, or press <b>New configuration</b>.</li>
+              <li>Watch the <b>Live preview</b>, then press <b>Send test events</b>.</li>
+              <li>Tick <b>Generate events with this configuration</b> and save.</li>
+              <li>Follow the counts on <b>Configurations</b> and <b>Throughput</b>.</li>
+            </ol>
+            <p>The full list of eventgen.conf settings is in
+              <code>README/eventgen.conf.spec</code> inside the app.</p>
+          </div>
+        </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

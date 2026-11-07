@@ -1,0 +1,16 @@
+<dashboard script="eventgen_app.js" stylesheet="app.css" hideEdit="true" hideExport="true" version="1.1">
+  <label>Generator control</label>
+  <description>Start and stop the built-in engine, tune how quickly it picks up changes, and confirm everything is in place.</description>
+  <row>
+    <panel>
+      <html>
+        <div id="egm-root">
+          <noscript>
+            This page needs JavaScript. The engine can also be controlled
+            from Settings, Data inputs, Eventgen Manager engine.
+          </noscript>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

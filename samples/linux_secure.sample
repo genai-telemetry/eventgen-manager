@@ -1,0 +1,10 @@
+Mar  8 11:04:11 web01 sshd[24518]: Accepted publickey for deploy from 203.0.113.14 port 52344 ssh2: RSA SHA256:9zTq
+Mar  8 11:04:13 web01 sshd[24520]: Failed password for invalid user admin from 198.51.100.72 port 41022 ssh2
+Mar  8 11:04:14 web01 sshd[24520]: Failed password for invalid user admin from 198.51.100.72 port 41022 ssh2
+Mar  8 11:04:16 db02 sudo:  jharris : TTY=pts/0 ; PWD=/home/jharris ; USER=root ; COMMAND=/usr/bin/systemctl restart postgresql
+Mar  8 11:04:18 web01 sshd[24525]: Disconnected from authenticating user root 192.0.2.201 port 39118 [preauth]
+Mar  8 11:04:20 app03 su: pam_unix(su:session): session opened for user postgres by mchen(uid=1004)
+Mar  8 11:04:23 web01 sshd[24531]: Invalid user oracle from 203.0.113.98 port 60112
+Mar  8 11:04:25 db02 sshd[24533]: Accepted password for rsingh from 198.51.100.5 port 55210 ssh2
+Mar  8 11:04:27 app03 sudo: pam_unix(sudo:auth): authentication failure; logname=kdavies uid=1007 euid=0 tty=/dev/pts/2 ruser=kdavies rhost= user=kdavies
+Mar  8 11:04:29 web01 sshd[24540]: Connection closed by 192.0.2.33 port 44210 [preauth]

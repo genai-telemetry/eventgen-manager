@@ -1,0 +1,21 @@
+# Application-level permissions
+#
+# The engine reads eventgen.conf from every app, and other apps' generators
+# have historically expected eventgen configuration to be global. Exporting
+# to system keeps stanzas authored here visible the same way.
+
+[]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[eventgen]
+access = read : [ admin, sc_admin, power ], write : [ admin, sc_admin ]
+export = system
+
+[views]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
+
+[nav]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system
